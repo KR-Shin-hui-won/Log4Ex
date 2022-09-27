@@ -4,6 +4,7 @@ import os.path
 import threading
 import time
 from requests import get
+from scapy.all import*
 
 num = 0
 headers = [
@@ -178,14 +179,23 @@ def main():
         print(attcurl)
         os.system(attcurl)
 
-#def check():
+def check():
+    a = sniff(count=0)
 
-    
+    src = a[ip].src
+    dst = a[ip].dst
+    pro = a[ip].proto
+    print(src, dst, pro)
     
 
 if __name__ == '__main__':
     t1=threading.Thread(target=jar)
+    t2=threading.Thread(target=check)
     t1.daemon=True
+    t2.daemon=True
     t1.IsBackground=True
+    t2.IsBackground=True
     t1.start()
+    t2.start()
     main()
+
