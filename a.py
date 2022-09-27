@@ -8,6 +8,8 @@ from scapy.all import*
 
 
 num = 0
+exip = ''
+tip = ''
 headers = [
 'ALL',
 'Forwarded',
@@ -84,6 +86,7 @@ headers = [
 servers=['ALL',]
 
 def jar():
+    global exip
     #os.system('clear')
     inip=(os.popen("hostname -I | awk '{print $1}'")).read()
     exip=get("https://api.ipify.org").text
@@ -104,6 +107,7 @@ def jar():
     
 
 def main():
+    global tip
     global num
     while True: 
         if num == 1: break
@@ -182,6 +186,8 @@ def main():
         os.system(attcurl)
 
 def sn(pkt) :
+    global tip
+    global exip
     if pkt.haslayer(ICMP):
         if socket.gethostbyname(socket.gethostname())==pkt[IP].src:
             #print(str("[")+str(time)+str("]")+"  "+"ICMP-OUT:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version) +"    "*1+" SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst))
