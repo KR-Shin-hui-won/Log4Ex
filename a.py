@@ -192,3 +192,4 @@ if __name__ == '__main__':
     t2.daemon=True
     t1.IsBackground=True
     t2.IsBackground=True
+    main()
