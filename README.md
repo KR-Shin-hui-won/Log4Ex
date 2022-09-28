@@ -1,6 +1,5 @@
-# JNDI-Server
+# log4Ex
 
-해당 jar 파일은 welk1n 분이 제작하신 JNDI-Injection-Exploit의 코드를 일부 고쳐서 만든 것입니다.
-( 어떠한 클래스의 정보 출력을 파일에도 똑같이 출력하는 코드를 넣었을 뿐. )
+log4shell 공격 자동화 도구입니다.
 
-공격 확인을 tcpdump를 통해 확인하기 때문에, tcpdump 설치 필수
+- 아직 리펙토링이 필요한 코드입니다.
