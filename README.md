@@ -1,4 +1,4 @@
-# log4Ex
+# Log4Ex
 
 log4shell 공격 자동화 도구입니다.
 
